@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports - ClassVault</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 50px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px 16px;
+      background: #fff;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:hover {
+      background-color: #ddd;
+    }
+
+    .report-list {
+      margin-top: 10px;
+    }
+
+    .report-item {
+      background-color: #222;
+      border-left: 4px solid white;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .report-type {
+      font-weight: bold;
+    }
+
+    .timestamp {
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 🔗 Navigation -->
+    <div class="nav">
+      <a href="dashboard.html" class="btn">Dashboard</a>
+      <a href="student.html" class="btn">Student Management</a>
+      <a href="resources.html" class="btn">Resource Management</a>
+      <a href="reports.html" class="btn">Reports</a>
+    </div>
+
+    <h2>System Activity Reports</h2>
+
+    <div class="report-list" id="reportList"></div>
+  </div>
+
+  <script>
+    function loadReports() {
+      const reportList = document.getElementById("reportList");
+      const logs = JSON.parse(localStorage.getItem("reports") || "[]");
+
+      if (logs.length === 0) {
+        const sample = [
+          { type: "Student", action: "Added", name: "John Doe", time: new Date().toLocaleString() },
+          { type: "Resource", action: "Edited", name: "Projector", time: new Date().toLocaleString() }
+        ];
+        localStorage.setItem("reports", JSON.stringify(sample));
+        return loadReports();
+      }
+
+      logs.reverse().forEach(log => {
+        const div = document.createElement("div");
+        div.className = "report-item";
+        div.innerHTML = `
+          <div><span class="report-type">${log.type}</span> - ${log.action} - <strong>${log.name}</strong></div>
+          <div class="timestamp">${log.time}</div>
+        `;
+        reportList.appendChild(div);
+      });
+    }
+
+    window.onload = loadReports;
+  </script>
+</body>
+</html>

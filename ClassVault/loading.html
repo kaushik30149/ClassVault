@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loading - ClassVault</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 5rem;
+      font-weight: bold;
+      opacity: 1;
+      transition: opacity 1.5s ease;
+      user-select: none;
+      letter-spacing: 5px;
+    }
+    h1.fade-out {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="appName">ClassVault</h1>
+
+<script>
+  const appName = document.getElementById('appName');
+
+  // After 4 seconds, start fade out (1.5s duration)
+  setTimeout(() => {
+    appName.classList.add('fade-out');
+  }, 4000);
+
+  // After 5.5 seconds total, redirect to dashboard
+  setTimeout(() => {
+    window.location.href = 'dashboard.html';
+  }, 5500);
+</script>
+</body>
+</html>
+
+ 

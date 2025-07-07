@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings - ClassVault</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 50px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px 16px;
+      background: #fff;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:hover {
+      background-color: #ddd;
+    }
+
+    .setting-section {
+      margin-bottom: 30px;
+    }
+
+    .setting-section h3 {
+      border-bottom: 1px solid #fff;
+      padding-bottom: 8px;
+    }
+
+    .setting-item {
+      margin: 12px 0;
+    }
+
+    .setting-item button {
+      padding: 10px 14px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .setting-item button:hover {
+      background: #ddd;
+    }
+
+    label.switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+      margin-right: 10px;
+    }
+
+    label.switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #888;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #fff;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 🔗 Navigation -->
+    <div class="nav">
+      <a href="dashboard.html" class="btn">Dashboard</a>
+      <a href="student.html" class="btn">Student Management</a>
+      <a href="resources.html" class="btn">Resource Management</a>
+      <a href="reports.html" class="btn">Reports</a>
+      <a href="settings.html" class="btn">Settings</a>
+    </div>
+
+    <h2>App Settings</h2>
+
+    <!-- 🌗 Theme Section -->
+    <div class="setting-section">
+      <h3>Theme</h3>
+      <div class="setting-item">
+        <label class="switch">
+          <input type="checkbox" id="themeToggle">
+          <span class="slider"></span>
+        </label>
+        <span id="themeLabel">Dark Mode</span>
+      </div>
+    </div>
+
+    <!-- 🧹 Clear Data Section -->
+    <div class="setting-section">
+      <h3>Data Management</h3>
+
+      <div class="setting-item">
+        <button onclick="clearStudents()">Clear All Students</button>
+      </div>
+      <div class="setting-item">
+        <button onclick="clearResources()">Clear All Resources</button>
+      </div>
+      <div class="setting-item">
+        <button onclick="clearReports()">Clear All Reports</button>
+      </div>
+      <div class="setting-item">
+        <button onclick="clearAll()">Clear ALL Data</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    const themeLabel = document.getElementById("themeLabel");
+
+    // Load saved theme
+    window.onload = function () {
+      const theme = localStorage.getItem("theme") || "dark";
+      if (theme === "light") {
+        document.body.style.backgroundColor = "#fff";
+        document.body.style.color = "#000";
+        themeToggle.checked = true;
+        themeLabel.textContent = "Light Mode";
+      }
+    };
+
+    themeToggle.addEventListener("change", () => {
+      if (themeToggle.checked) {
+        document.body.style.backgroundColor = "#fff";
+        document.body.style.color = "#000";
+        localStorage.setItem("theme", "light");
+        themeLabel.textContent = "Light Mode";
+      } else {
+        document.body.style.backgroundColor = "#000";
+        document.body.style.color = "#fff";
+        localStorage.setItem("theme", "dark");
+        themeLabel.textContent = "Dark Mode";
+      }
+    });
+
+    function clearStudents() {
+      localStorage.removeItem("students");
+      alert("All students removed.");
+    }
+
+    function clearResources() {
+      localStorage.removeItem("resources");
+      alert("All resources removed.");
+    }
+
+    function clearReports() {
+      localStorage.removeItem("reports");
+      alert("All reports removed.");
+    }
+
+    function clearAll() {
+      localStorage.clear();
+      alert("All app data cleared.");
+    }
+  </script>
+</body>
+</html>

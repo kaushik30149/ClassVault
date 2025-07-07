@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - ClassVault</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-box">
+    <h2>Register</h2>
+    <input type="text" id="newUsername" placeholder="Username" />
+    <input type="password" id="newPassword" placeholder="Password" />
+    <button onclick="register()">Register</button>
+    <p id="registerMessage"></p>
+    <br>
+    <button onclick="goToLogin()">Back to Login</button>
+  </div>
+
+  <script>
+    function register() {
+      const username = document.getElementById("newUsername").value.trim();
+      const password = document.getElementById("newPassword").value.trim();
+      const message = document.getElementById("registerMessage");
+
+      if (!username || !password) {
+        message.textContent = "Please enter both fields.";
+        message.style.color = "red";
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      if (users.find(u => u.username === username)) {
+        message.textContent = "Username already exists!";
+        message.style.color = "red";
+        return;
+      }
+
+      users.push({ username, password });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      message.textContent = "Registered successfully!";
+      message.style.color = "lightgreen";
+    }
+
+    function goToLogin() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

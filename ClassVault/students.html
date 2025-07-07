@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Management - ClassVault</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 50px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px 16px;
+      background: #fff;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:hover {
+      background-color: #ddd;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], input[type="number"] {
+      flex: 1;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px 14px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ddd;
+    }
+
+    .student-card {
+      background-color: #222;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-left: 4px solid white;
+      border-radius: 6px;
+    }
+
+    .student-info {
+      margin-bottom: 8px;
+    }
+
+    .edit-input {
+      width: 100%;
+      background: #000;
+      color: white;
+      border: none;
+      border-bottom: 1px solid white;
+      padding: 6px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 🔗 Navigation -->
+    <div class="nav">
+      <a href="dashboard.html" class="btn">Dashboard</a>
+      <a href="student.html" class="btn">Student Management</a>
+      <a href="resources.html" class="btn">Resource Management</a>
+      <a href="reports.html" class="btn">Reports</a>
+      <a href="settings.html" class="btn">Settings</a>
+    </div>
+
+    <h2>Student Management</h2>
+
+    <!-- Add Student Form -->
+    <div class="form-row">
+      <input type="text" id="name" placeholder="Name">
+      <input type="number" id="roll" placeholder="Roll No">
+      <input type="text" id="class" placeholder="Class">
+      <input type="text" id="section" placeholder="Section">
+      <button onclick="addStudent()">Add</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by Name..." oninput="searchStudents()">
+    </div>
+
+    <div id="studentList"></div>
+  </div>
+
+  <script>
+    let students = [];
+
+    function loadStudents() {
+      const saved = localStorage.getItem("students");
+      if (saved) {
+        students = JSON.parse(saved);
+        displayStudents(students);
+      }
+    }
+
+    function saveStudents() {
+      localStorage.setItem("students", JSON.stringify(students));
+    }
+
+    function logReport(type, action, name) {
+      const reports = JSON.parse(localStorage.getItem("reports") || "[]");
+      reports.push({
+        type,
+        action,
+        name,
+        time: new Date().toLocaleString()
+      });
+      localStorage.setItem("reports", JSON.stringify(reports));
+    }
+
+    function addStudent() {
+      const name = document.getElementById("name").value.trim();
+      const roll = document.getElementById("roll").value.trim();
+      const className = document.getElementById("class").value.trim();
+      const section = document.getElementById("section").value.trim();
+
+      if (name && roll && className && section) {
+        const student = { name, roll, className, section };
+        students.push(student);
+        saveStudents();
+        logReport("Student", "Added", name);
+        displayStudents(students);
+
+        // Clear fields
+        document.getElementById("name").value = "";
+        document.getElementById("roll").value = "";
+        document.getElementById("class").value = "";
+        document.getElementById("section").value = "";
+      }
+    }
+
+    function displayStudents(list) {
+      const container = document.getElementById("studentList");
+      container.innerHTML = "";
+
+      list.forEach((student, index) => {
+        const card = document.createElement("div");
+        card.className = "student-card";
+
+        const info = document.createElement("div");
+        info.className = "student-info";
+        info.innerHTML = `
+          <strong>${student.name}</strong><br>
+          Roll No: ${student.roll}<br>
+          Class: ${student.className} - Section: ${student.section}
+        `;
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => editStudent(index, card);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => {
+          const name = students[index].name;
+          students.splice(index, 1);
+          saveStudents();
+          logReport("Student", "Deleted", name);
+          displayStudents(students);
+        };
+
+        card.appendChild(info);
+        card.appendChild(editBtn);
+        card.appendChild(delBtn);
+        container.appendChild(card);
+      });
+    }
+
+    function editStudent(index, card) {
+      const student = students[index];
+      card.innerHTML = "";
+
+      const nameInput = document.createElement("input");
+      nameInput.className = "edit-input";
+      nameInput.value = student.name;
+
+      const rollInput = document.createElement("input");
+      rollInput.className = "edit-input";
+      rollInput.value = student.roll;
+
+      const classInput = document.createElement("input");
+      classInput.className = "edit-input";
+      classInput.value = student.className;
+
+      const sectionInput = document.createElement("input");
+      sectionInput.className = "edit-input";
+      sectionInput.value = student.section;
+
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Save";
+      saveBtn.onclick = () => {
+        const newName = nameInput.value.trim();
+        const newRoll = rollInput.value.trim();
+        const newClass = classInput.value.trim();
+        const newSection = sectionInput.value.trim();
+
+        if (newName && newRoll && newClass && newSection) {
+          const oldName = students[index].name;
+          students[index] = {
+            name: newName,
+            roll: newRoll,
+            className: newClass,
+            section: newSection
+          };
+          saveStudents();
+          logReport("Student", "Edited", `${oldName} → ${newName}`);
+          displayStudents(students);
+        }
+      };
+
+      card.appendChild(nameInput);
+      card.appendChild(rollInput);
+      card.appendChild(classInput);
+      card.appendChild(sectionInput);
+      card.appendChild(saveBtn);
+    }
+
+    function searchStudents() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = students.filter(s => s.name.toLowerCase().includes(query));
+      displayStudents(filtered);
+    }
+
+    window.onload = loadStudents;
+  </script>
+</body>
+</html>

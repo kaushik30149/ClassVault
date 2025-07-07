@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resource Management - ClassVault</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: #111;
+      padding: 30px;
+      border-radius: 12px;
+      margin-top: 50px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px 16px;
+      background: #fff;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn:hover {
+      background-color: #ddd;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], input[type="number"] {
+      flex: 1;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px 14px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ddd;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .resource-card {
+      background-color: #222;
+      margin-bottom: 10px;
+      padding: 12px;
+      border-left: 4px solid white;
+      border-radius: 6px;
+    }
+
+    .resource-info {
+      margin-bottom: 8px;
+    }
+
+    .edit-input {
+      width: 100%;
+      background: #000;
+      color: white;
+      border: none;
+      border-bottom: 1px solid white;
+      padding: 6px;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 🔗 Navigation -->
+    <div class="nav">
+      <a href="dashboard.html" class="btn">Dashboard</a>
+      <a href="student.html" class="btn">Student Management</a>
+      <a href="resources.html" class="btn">Resource Management</a>
+      <a href="reports.html" class="btn">Reports</a>
+      <a href="settings.html" class="btn">Settings</a>
+    </div>
+
+    <h2>Resource Management</h2>
+
+    <!-- Add Resource Form -->
+    <div class="form-row">
+      <input type="text" id="name" placeholder="Resource Name">
+      <input type="number" id="quantity" placeholder="Quantity">
+      <input type="text" id="category" placeholder="Category">
+      <button onclick="addResource()">Add</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by Name..." oninput="searchResources()">
+    </div>
+
+    <div id="resourceList"></div>
+  </div>
+
+  <script>
+    let resources = [];
+
+    function loadResources() {
+      const saved = localStorage.getItem("resources");
+      if (saved) {
+        resources = JSON.parse(saved);
+        displayResources(resources);
+      }
+    }
+
+    function saveResources() {
+      localStorage.setItem("resources", JSON.stringify(resources));
+    }
+
+    function logReport(type, action, name) {
+      const reports = JSON.parse(localStorage.getItem("reports") || "[]");
+      reports.push({
+        type,
+        action,
+        name,
+        time: new Date().toLocaleString()
+      });
+      localStorage.setItem("reports", JSON.stringify(reports));
+    }
+
+    function addResource() {
+      const name = document.getElementById("name").value.trim();
+      const quantity = parseInt(document.getElementById("quantity").value);
+      const category = document.getElementById("category").value.trim();
+
+      if (name && quantity > 0 && category) {
+        const resource = { name, quantity, category };
+        resources.push(resource);
+        saveResources();
+        logReport("Resource", "Added", name);
+        displayResources(resources);
+
+        // Clear fields
+        document.getElementById("name").value = "";
+        document.getElementById("quantity").value = "";
+        document.getElementById("category").value = "";
+      }
+    }
+
+    function displayResources(list) {
+      const container = document.getElementById("resourceList");
+      container.innerHTML = "";
+
+      list.forEach((res, index) => {
+        const card = document.createElement("div");
+        card.className = "resource-card";
+
+        const info = document.createElement("div");
+        info.className = "resource-info";
+        info.innerHTML = `
+          <strong>${res.name}</strong><br>
+          Quantity: ${res.quantity}<br>
+          Category: ${res.category}
+        `;
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => editResource(index, card);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => {
+          const name = resources[index].name;
+          resources.splice(index, 1);
+          saveResources();
+          logReport("Resource", "Deleted", name);
+          displayResources(resources);
+        };
+
+        card.appendChild(info);
+        card.appendChild(editBtn);
+        card.appendChild(delBtn);
+        container.appendChild(card);
+      });
+    }
+
+    function editResource(index, card) {
+      const resource = resources[index];
+      card.innerHTML = "";
+
+      const nameInput = document.createElement("input");
+      nameInput.className = "edit-input";
+      nameInput.value = resource.name;
+
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.className = "edit-input";
+      qtyInput.value = resource.quantity;
+
+      const catInput = document.createElement("input");
+      catInput.className = "edit-input";
+      catInput.value = resource.category;
+
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Save";
+      saveBtn.onclick = () => {
+        const newName = nameInput.value.trim();
+        const newQty = parseInt(qtyInput.value);
+        const newCat = catInput.value.trim();
+
+        if (newName && newQty > 0 && newCat) {
+          const oldName = resources[index].name;
+          resources[index] = {
+            name: newName,
+            quantity: newQty,
+            category: newCat
+          };
+          saveResources();
+          logReport("Resource", "Edited", `${oldName} → ${newName}`);
+          displayResources(resources);
+        }
+      };
+
+      card.appendChild(nameInput);
+      card.appendChild(qtyInput);
+      card.appendChild(catInput);
+      card.appendChild(saveBtn);
+    }
+
+    function searchResources() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = resources.filter(res => res.name.toLowerCase().includes(query));
+      displayResources(filtered);
+    }
+
+    window.onload = loadResources;
+  </script>
+</body>
+</html>

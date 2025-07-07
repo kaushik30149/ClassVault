@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClassVault Dashboard</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #111;
+      color: #eee;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 {
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+      color: #ccc;
+    }
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    /* Summary cards */
+    .summary-cards {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: #222;
+      flex: 1 1 30%;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      text-align: center;
+    }
+    .card h2 {
+      font-size: 2.5rem;
+      margin-bottom: 0.4rem;
+      color: #fff;
+    }
+    .card p {
+      color: #bbb;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+    }
+    /* Buttons */
+    .btn-group {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background-color: #fff;
+      color: #111;
+      border: 1.5px solid #111;
+      padding: 0.7rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      flex: 1 1 150px;
+      text-align: center;
+      text-decoration: none;
+      user-select: none;
+    }
+    .btn:hover {
+      background-color: #eee;
+    }
+    /* Search bar */
+    #searchBar {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1.5px solid #555;
+      background: #111;
+      color: #eee;
+      font-size: 1rem;
+    }
+    #searchBar:focus {
+      outline: none;
+      border-color: #fff;
+    }
+    /* Activity log */
+    .activity-log {
+      background: #222;
+      padding: 1rem;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px #000;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+    .log-entry {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #444;
+    }
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    /* Logout */
+    #logoutBtn {
+      margin-top: 2rem;
+      background-color: transparent;
+      border: 1.5px solid #eee;
+      color: #eee;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      user-select: none;
+    }
+    #logoutBtn:hover {
+      background-color: #eee;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ClassVault Dashboard</h1>
+
+    <div class="summary-cards">
+      <div class="card">
+        <h2 id="totalStudents">0</h2>
+        <p>Total Students</p>
+      </div>
+      <div class="card">
+        <h2 id="totalResources">0</h2>
+        <p>Total Resources</p>
+      </div>
+      <div class="card">
+        <h2 id="totalIssued">0</h2>
+        <p>Resources Issued</p>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <a href="students.html" class="btn" tabindex="1">Student Management</a>
+      <a href="resource.html" class="btn" tabindex="2">Resource Management</a>
+      <a href="issue.html" class="btn" tabindex="3">Issued Resources</a>
+    </div>
+
+    <input type="text" id="searchBar" placeholder="Search recent activity by student or resource" tabindex="4" />
+
+    <div class="activity-log" id="activityLog">
+      <p style="color:#666; font-style: italic;">No recent activity found.</p>
+    </div>
+
+    <button id="logoutBtn" tabindex="5">Logout</button>
+  </div>
+
+<script>
+  // Utility to read from localStorage or return empty array
+  function getLocalStorageArray(key) {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Update summary cards
+  function updateSummary() {
+    const students = getLocalStorageArray('students');
+    const resources = getLocalStorageArray('resources');
+    const issued = getLocalStorageArray('issuedResources');
+
+    document.getElementById('totalStudents').textContent = students.length;
+    document.getElementById('totalResources').textContent = resources.length;
+    document.getElementById('totalIssued').textContent = issued.length;
+  }
+
+  // Render activity log with optional filter
+  function renderActivityLog(filter = '') {
+    const container = document.getElementById('activityLog');
+    const issued = getLocalStorageArray('issuedResources');
+
+    container.innerHTML = '';
+
+    const filtered = issued.filter(entry => {
+      const s = entry.studentName.toLowerCase();
+      const r = entry.resourceName.toLowerCase();
+      return s.includes(filter.toLowerCase()) || r.includes(filter.toLowerCase());
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p style="color:#666; font-style: italic;">No recent activity found.</p>';
+      return;
+    }
+
+    // Sort newest first by timestamp (id)
+    filtered.sort((a,b) => b.id - a.id);
+
+    filtered.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.textContent = `${entry.issueDate} — ${entry.quantity} × "${entry.resourceName}" issued to ${entry.studentName}`;
+      container.appendChild(div);
+    });
+  }
+
+  // Search bar input event
+  document.getElementById('searchBar').addEventListener('input', e => {
+    renderActivityLog(e.target.value);
+  });
+
+  // Logout button
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    // You can clear login session here if implemented
+    window.location.href = 'index.html'; // redirect to login page
+  });
+
+  // Initialize dashboard
+  updateSummary();
+  renderActivityLog();
+
+</script>
+</body>
+</html>

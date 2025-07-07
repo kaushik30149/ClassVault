@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Issue Resource - ClassVault</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    h1 {
+      font-weight: bold;
+      color: #ccc;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+    }
+    form {
+      max-width: 400px;
+      background: #222;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+      color: #bbb;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1.5px solid #555;
+      background: #111;
+      color: #eee;
+      font-size: 1rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #fff;
+    }
+    button {
+      background: #fff;
+      color: #111;
+      font-weight: bold;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 6px;
+      width: 100%;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #ddd;
+    }
+    .message {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #0f0;
+    }
+    .back-link {
+      margin-top: 1.5rem;
+      display: inline-block;
+      color: #ccc;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Issue Resource</h1>
+
+  <form id="issueForm">
+    <label for="studentName">Student Name</label>
+    <input type="text" id="studentName" placeholder="Enter student name" required />
+
+    <label for="resourceName">Resource Name</label>
+    <input type="text" id="resourceName" placeholder="Enter resource name" required />
+
+    <label for="quantity">Quantity</label>
+    <input type="number" id="quantity" min="1" value="1" required />
+
+    <label for="issueDate">Issue Date</label>
+    <input type="date" id="issueDate" required />
+
+    <button type="submit">Issue</button>
+  </form>
+
+  <div class="message" id="message"></div>
+
+  <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+
+  <script>
+    const form = document.getElementById('issueForm');
+    const messageDiv = document.getElementById('message');
+
+    // Set default issue date to today
+    const issueDateInput = document.getElementById('issueDate');
+    issueDateInput.valueAsDate = new Date();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const studentName = document.getElementById('studentName').value.trim();
+      const resourceName = document.getElementById('resourceName').value.trim();
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const issueDate = document.getElementById('issueDate').value;
+
+      if (!studentName || !resourceName || quantity <= 0 || !issueDate) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Please fill all fields correctly.';
+        return;
+      }
+
+      // Create issue object
+      const issuedResource = {
+        studentName,
+        resourceName,
+        quantity,
+        issueDate,
+        id: Date.now()
+      };
+
+      // Get existing issued resources from localStorage
+      const issuedResources = JSON.parse(localStorage.getItem('issuedResources')) || [];
+
+      // Add new issue to the array
+      issuedResources.push(issuedResource);
+
+      // Save back to localStorage
+      localStorage.setItem('issuedResources', JSON.stringify(issuedResources));
+
+      // Show success message and reset form
+      messageDiv.style.color = '#0f0';
+      messageDiv.textContent = `Resource issued successfully to ${studentName}.`;
+
+      form.reset();
+      issueDateInput.valueAsDate = new Date();
+    });
+  </script>
+</body>
+</html>
